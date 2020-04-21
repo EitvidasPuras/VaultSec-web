@@ -2,11 +2,13 @@
 /public/hot
 /public/storage
 /storage/*.key
-/vendor
+/vendor/
 .env
 .env.backup
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
+/.vagrant
+
 npm-debug.log
 yarn-error.log
