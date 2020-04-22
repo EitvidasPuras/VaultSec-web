@@ -14,8 +14,8 @@ return [
     | Supported: "bcrypt", "argon", "argon2id"
     |
     */
-
-    'driver' => 'bcrypt',
+    //Commented this out, because the passwords that api will be receiving will already be hashed
+//    'driver' => 'bcrypt',
 
     /*
     |--------------------------------------------------------------------------
