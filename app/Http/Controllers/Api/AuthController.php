@@ -33,10 +33,11 @@ class AuthController extends Controller
             if (!empty($user->oAuthAccessToken)) {
                 if ($user->oAuthAccessToken->expires_at > now()
                     && $user->oAuthAccessToken->revoked == false) {
-                    return response()->json('Token still valid', 200);
+//                    $loc = geoip()->getLocation('178.16.41.200')->toArray();
+                    return response()->json($user->oAuthAccessToken, 200);
                 }
             }
-            $success['token'] = $user->createToken('VaultSec')->accessToken;
+            $success['token'] = $user->createToken('VaultSec-token')->accessToken;
             return response()->json(['success' => $success], 200);
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
@@ -63,10 +64,28 @@ class AuthController extends Controller
 
         $input = $request->all();
         $input['ip_address'] = $request->ip();
+        $locArray = geoip()->getLocation($input['ip_address'])->toArray();
+        if ($locArray['default'] == false) {
+            $input['country'] = $locArray['country'];
+            $input['city'] = $locArray['city'];
+            $input['postal_code'] = $locArray['postal_code'];
+            $input['latitude'] = $locArray['lat'];
+            $input['longitude'] = $locArray['lon'];
+        }
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
-        $success['token'] = $user->createToken('VaultSec')->accessToken;
+        $success['token'] = $user->createToken('VaultSec-token')->accessToken;
         $success['first_name'] = $user->first_name;
         return response()->json(['success' => $success], 200);
     }
+
+    public function logout()
+    {
+        $user = Auth::user();
+        $user->oAuthAccessToken->revoked = 1;
+        $user->oAuthAccessToken->save();
+        return response()->json(['success' => 'Logged out'], 200);
+    }
+
+    // TODO: login_session table (fill it)
 }
