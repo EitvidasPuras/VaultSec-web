@@ -42,4 +42,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(OauthAccessToken::class);
     }
+
+    public function loginSession()
+    {
+        return $this->hasMany(LoginSession::class)
+            ->orderBy('updated_at', 'desc');
+    }
 }

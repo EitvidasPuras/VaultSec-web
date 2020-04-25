@@ -21,7 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['middleware' => ['auth:api', 'is_admin']], function () {
+Route::group(['middleware' => ['auth:api']], function () {
     Route::get('/details', 'Api\UserController@userInformation');
 });
 
