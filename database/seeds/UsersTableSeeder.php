@@ -2,6 +2,7 @@
 
 use App\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class UsersTableSeeder extends Seeder
 {
@@ -12,6 +13,8 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
+        Storage::disk('local')->delete('test_tokens.txt');
+
         $credentials = [
             'first_name' => "ExampleFirst",
             'last_name' => "ExampleLast",
@@ -21,7 +24,24 @@ class UsersTableSeeder extends Seeder
             'ip_address' => request()->ip()
         ];
         $user = User::create($credentials);
-        $user->createToken('VaultSec_token')->accessToken;
+        $token = $user->createToken('VaultSec_token')->accessToken;
+        Storage::disk('local')->append('test_tokens.txt',
+            $credentials['email'] . ' : ' . $token);
+        $user->save();
+
+        $credentials = [
+            'first_name' => "Tom",
+            'last_name' => "Brady",
+            'email' => "tom@example.com",
+            'password' => bcrypt("123456789*aA"),
+            'is_admin' => false,
+            'ip_address' => request()->ip(),
+            'login_session_id' => 1
+        ];
+        $user = User::create($credentials);
+        $token = $user->createToken('VaultSec_token')->accessToken;
+        Storage::disk('local')->append('test_tokens.txt',
+            $credentials['email'] . ' : ' . $token);
         $user->save();
 
         $credentials = [
@@ -33,7 +53,9 @@ class UsersTableSeeder extends Seeder
             'ip_address' => request()->ip()
         ];
         $admin = User::create($credentials);
-        $admin->createToken('VaultSec_token')->accessToken;
+        $token = $admin->createToken('VaultSec_token')->accessToken;
+        Storage::disk('local')->append('test_tokens.txt',
+            $credentials['email'] . ' : ' . $token);
         $admin->save();
     }
 }

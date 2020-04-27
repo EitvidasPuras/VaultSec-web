@@ -46,6 +46,11 @@ class User extends Authenticatable
     public function loginSession()
     {
         return $this->hasMany(LoginSession::class)
-            ->orderBy('updated_at', 'desc');
+            ->orderBy('updated_at', 'asc');
+    }
+
+    public function vaultPassword()
+    {
+        return $this->hasMany(VaultPassword::class);
     }
 }

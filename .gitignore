@@ -2,9 +2,14 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/stored_files
+/storage/app/stored_files_link
+/storage/test_tokens.txt
 /vendor/
 .env
 .env.backup
+_ide_helper.php
+_ide_helper_models.php
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
