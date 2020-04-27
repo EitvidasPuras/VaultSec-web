@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\VaultPassword;
+use App\VaultNote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class VaultPasswordController extends Controller
+class VaultNoteController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,15 +17,15 @@ class VaultPasswordController extends Controller
      */
     public function index()
     {
-        $vaultPasswords = VaultPassword::where('user_id', '=', Auth::id())->get();
-        return response()->json(['success' => $vaultPasswords], 200);
+        $vaultNotes = VaultNote::where('user_id', '=', Auth::id())->get();
+        return response()->json(['success' => $vaultNotes], 200);
     }
 
     public function indexAdmin()
     {
-        $vaultPasswords =
-            VaultPassword::leftJoin('users', 'users.id', '=', 'vault_passwords.user_id')->get();
-        return response()->json(['success' => $vaultPasswords], 200);
+        $vaultNotes =
+            VaultNote::leftJoin('users', 'users.id', '=', 'vault_notes.user_id')->get();
+        return response()->json(['success' => $vaultNotes], 200);
     }
 
     /**
@@ -38,10 +38,9 @@ class VaultPasswordController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'bail|required|string|max:30',
-            'website_name' => 'bail|required|string|url|max:100',
-            'login' => 'bail|string|max:200',
-            'password' => 'bail|required|string|min:4',
-            'category' => 'bail|required|string|max:40',
+            'text' => 'bail|required|string|max:1024',
+            'color' => 'bail|string|max:10',
+            'font_size' => 'bail|integer|max:30',
             'ip_address' => 'bail|nullable|string|ip',
         ]);
 
@@ -52,10 +51,10 @@ class VaultPasswordController extends Controller
         $input = $request->all();
         $input['user_id'] = Auth::id();
         $input['ip_address'] = $request->ip();
-        $vaultPassword = VaultPassword::create($input);
-        $vaultPassword->save();
+        $vaultNote = VaultNote::create($input);
+        $vaultNote->save();
 
-        return response()->json(['success' => $vaultPassword], 201);
+        return response()->json(['success' => $vaultNote], 201);
     }
 
     /**
@@ -66,9 +65,9 @@ class VaultPasswordController extends Controller
      */
     public function show($id)
     {
-        $vaultPassword = VaultPassword::where('user_id', '=', Auth::id())
+        $vaultNote = VaultNote::where('user_id', '=', Auth::id())
             ->findOrFail($id);
-        return response()->json(['success' => $vaultPassword], 200);
+        return response()->json(['success' => $vaultNote], 200);
     }
 
     /**
@@ -82,10 +81,9 @@ class VaultPasswordController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'bail|required|string|max:30',
-            'website_name' => 'bail|required|string|url|max:100',
-            'login' => 'bail|string|max:200',
-            'password' => 'bail|required|string|min:4',
-            'category' => 'bail|required|string|max:40',
+            'text' => 'bail|required|string|max:1024',
+            'color' => 'bail|string|max:10',
+            'font_size' => 'bail|integer|max:30',
             'ip_address' => 'bail|nullable|string|ip',
         ]);
 
@@ -93,18 +91,18 @@ class VaultPasswordController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $vaultPassword = VaultPassword::findOrFail($id);
+        $vaultNote = VaultNote::findOrFail($id);
 
-        $vaultPassword->update([
+        $vaultNote->update([
             'title' => $request->title,
-            'website_name' => $request->website_name,
-            'login' => $request->login,
-            'password' => $request->password,
-            'category' => $request->category,
+            'text' => $request->text,
+            'color' => $request->color,
+            'font_size' => $request->font_size,
             'ip_address' => $request->ip(),
         ]);
-        $vaultPassword->save();
-        return response()->json(['success' => $vaultPassword], 200);
+
+        $vaultNote->save();
+        return response()->json(['success' => $vaultNote], 200);
     }
 
     /**
@@ -115,9 +113,9 @@ class VaultPasswordController extends Controller
      */
     public function destroy($id)
     {
-        $vaultPassword = VaultPassword::where('user_id', '=', Auth::id())
+        $vaultNote = VaultNote::where('user_id', '=', Auth::id())
             ->findOrFail($id);
-        $vaultPassword->delete();
+        $vaultNote->delete();
         return response()->json(['success' => 'Record deleted'], 200);
     }
 }

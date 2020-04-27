@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(VaultPassword::class);
     }
+
+    public function vaultNote()
+    {
+        return $this->hasMany(VaultNote::class);
+    }
 }

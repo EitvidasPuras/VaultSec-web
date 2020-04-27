@@ -12,8 +12,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call(UsersTableSeeder::class);
-        $this->call(VaultPasswordsTableSeeder::class);
         $this->call(LoginSessionsTableSeeder::class);
+        $this->call(VaultPasswordsTableSeeder::class);
+        $this->call(VaultNotesTableSeeder::class);
         // $this->call(UserSeeder::class);
     }
 }
