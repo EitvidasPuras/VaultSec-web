@@ -15,6 +15,8 @@ class UserController extends Controller
         $user->oAuthAccessToken;
         $user->loginSession;
         $user->vaultPassword;
+        $user->vaultNote;
+        $user->vaultFile;
         return response()->json(['success' => $user], 200);
     }
 

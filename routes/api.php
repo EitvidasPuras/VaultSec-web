@@ -35,4 +35,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::apiResource('passwords', 'Api\VaultPasswordController');
     Route::apiResource('notes', 'Api\VaultNoteController');
     Route::apiResource('files', 'Api\VaultFileController');
+    Route::get('the_vault', 'Api\VaultController@index');
 });
