@@ -57,7 +57,7 @@ return [
 
         'private' => [
             'driver' => 'local',
-            'root' => storage_path('app/stored_files'),
+            'root' => storage_path('stored_files'),
             'visibility' => 'private'
         ],
 

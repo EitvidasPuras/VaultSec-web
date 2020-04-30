@@ -22,7 +22,11 @@ Route::group(['middleware' => ['auth:api', 'is_admin']], function () {
     Route::get('/admin/users', 'Api\UserController@allUsers');
     Route::get('/admin/passwords', 'Api\VaultPasswordController@indexAdmin');
     Route::get('/admin/notes', 'Api\VaultNoteController@indexAdmin');
-    Route::get('/admin/activeusers', 'Api\UserController@currentlyActiveUsers');
+    Route::get('/admin/active', 'Api\UserController@currentlyActiveUsers');
+    Route::get('/admin/files', 'Api\VaultFileController@indexAdmin');
+    // ------------ For test purposes and future features -----------
+    Route::get('/admin/random', 'Api\UserController@getRandom');
+    // --------------------------------------------------------------
 });
 
 Route::group(['middleware' => 'auth:api'], function () {
@@ -30,4 +34,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/user', 'Api\UserController@userInformation');
     Route::apiResource('passwords', 'Api\VaultPasswordController');
     Route::apiResource('notes', 'Api\VaultNoteController');
+    Route::apiResource('files', 'Api\VaultFileController');
 });

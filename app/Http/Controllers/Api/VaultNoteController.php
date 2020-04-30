@@ -38,7 +38,7 @@ class VaultNoteController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'bail|required|string|max:30',
-            'text' => 'bail|required|string|max:1024',
+            'text' => 'bail|required|string|max:10000',
             'color' => 'bail|string|max:10',
             'font_size' => 'bail|integer|max:30',
             'ip_address' => 'bail|nullable|string|ip',
@@ -81,7 +81,7 @@ class VaultNoteController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'bail|required|string|max:30',
-            'text' => 'bail|required|string|max:1024',
+            'text' => 'bail|required|string|max:10000',
             'color' => 'bail|string|max:10',
             'font_size' => 'bail|integer|max:30',
             'ip_address' => 'bail|nullable|string|ip',
@@ -91,7 +91,8 @@ class VaultNoteController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $vaultNote = VaultNote::findOrFail($id);
+        $vaultNote = VaultNote::where('user_id', '=', Auth::id())
+            ->findOrFail($id);
 
         $vaultNote->update([
             'title' => $request->title,

@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call(LoginSessionsTableSeeder::class);
         $this->call(VaultPasswordsTableSeeder::class);
         $this->call(VaultNotesTableSeeder::class);
+        $this->call(VaultFilesTableSeeder::class);
         // $this->call(UserSeeder::class);
     }
 }

@@ -93,7 +93,8 @@ class VaultPasswordController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $vaultPassword = VaultPassword::findOrFail($id);
+        $vaultPassword = VaultPassword::where('user_id', '=', Auth::id())
+            ->findOrFail($id);
 
         $vaultPassword->update([
             'title' => $request->title,
