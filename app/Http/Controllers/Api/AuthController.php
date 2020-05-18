@@ -58,7 +58,7 @@ class AuthController extends Controller
                 if (($user->oAuthAccessToken->expires_at > now()
                         && $user->oAuthAccessToken->revoked == false)
                     && $user->login_session_id != null) {
-                    return response()->json(['error' => 'Currently logged in'], 200);
+                    return response()->json(['error' => 'Currently logged in'], 400);
                 } else if ($user->login_session_id != null
                     && ($user->oAuthAccessToken->expires_at < now()
                         || $user->oAuthAccessToken->revoked == true)) {
