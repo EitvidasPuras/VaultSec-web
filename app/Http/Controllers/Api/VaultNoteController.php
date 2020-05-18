@@ -45,7 +45,7 @@ class VaultNoteController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['error' => $validator->errors()->all()[0]], 400);
         }
 
         $input = $request->all();
@@ -88,7 +88,7 @@ class VaultNoteController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['error' => $validator->errors()->all()[0]], 400);
         }
 
         $vaultNote = VaultNote::where('user_id', '=', Auth::id())

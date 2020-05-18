@@ -47,7 +47,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => $validator->errors()->all()[0]], 400);
         }
 
         if (Auth::attempt(['email' => $request->email,
@@ -117,7 +117,7 @@ class AuthController extends Controller
             'ip_address' => 'bail|nullable|string|ip',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => $validator->errors()->all()[0]], 400);
         }
 
         $input = $request->all();

@@ -53,7 +53,7 @@ class VaultFileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['error' => $validator->errors()->all()[0]], 400);
         }
 
         $input = $request->all();
@@ -109,7 +109,7 @@ class VaultFileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['error' => $validator->errors()->all()[0]], 400);
         }
 
         $vaultFile = VaultFile::where('user_id', '=', Auth::id())
