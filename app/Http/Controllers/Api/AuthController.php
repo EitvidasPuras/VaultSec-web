@@ -95,6 +95,23 @@ class AuthController extends Controller
                     return response()->json(['success' => $success], 200);
                 }
             }
+            // The lines below are in case the authToken is deleted and user session is set to 0
+            // These are commented out, because this case should never happen in app's lifecycle
+            // Check logout function for the logic
+//            else {
+//                $loginSessionInfo = [
+//                    'user_id' => $user->id,
+//                    'ip_address' => $request->ip(),
+//                    'currently_active' => true
+//                ];
+//                $loginSession = new LoginSession($this->setLocationData($loginSessionInfo));
+//                $loginSession->save();
+//                $user->login_session_id = $loginSession->id;
+//                $user->save();
+//
+//                $success['token'] = $user->createToken('VaultSec-token')->accessToken;
+//                return response()->json(['success' => $success], 200);
+//            }
         } else {
             return response()->json(['error' => 'Unauthorized'], 400);
         }
