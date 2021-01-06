@@ -15,7 +15,7 @@
         "laravel/framework": "^7.0",
         "laravel/passport": "^8.4",
         "laravel/tinker": "^2.0",
-        "symfony/http-kernel": "^5.2",
+        "symfony/http-kernel": "^5.1",
         "torann/geoip": "^1.2"
     },
     "require-dev": {
