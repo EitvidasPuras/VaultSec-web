@@ -166,17 +166,10 @@ class VaultNoteController extends Controller
         );
         error_log("Cleaned up input array. -----POST notes store request");
         Log::channel("info_channel")->info("INPUT :", $input);
-        //TODO: Check if note exists
-        //  If it does: ignore it
-        //  If it doesn't: insert it
-        //  How to check if the note exists? Maybe send over an id from android device and compare?
-
-        //TODO: Or maybe ignore it and allow user to have as many of the same notes as user wants
         if (!VaultNote::insert($input)) {
             error_log("Failed to insert");
             return response()->json(['error' => "Failed to insert"], 400);
         }
-//        VaultNote::insertOrIgnore($input);
         error_log("Inserted notes. -----POST notes store request");
         /*
          * In order to achieve complete synchronization with the server with only one request
