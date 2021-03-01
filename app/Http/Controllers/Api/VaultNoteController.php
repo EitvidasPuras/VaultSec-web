@@ -23,15 +23,17 @@ class VaultNoteController extends Controller
      */
     public function index()
     {
+        error_log("GET NOTES REQUEST ---> Entered the request");
         $vaultNotes = VaultNote::where('user_id', '=', Auth::id())->get();
-        $vaultNotesFixed = array_map(
+        $vaultNotesSterilized = array_map(
             function ($vaultNotes) {
                 return array_diff_key($vaultNotes,
                     array_flip($this->blacklist)
                 );
             }, $vaultNotes->toArray()
         );
-        return response()->json($vaultNotesFixed, 200);
+        error_log("GET NOTES REQUEST ---> Got items. Returning...");
+        return response()->json($vaultNotesSterilized, 200);
     }
 
     public function indexAdmin()
@@ -48,7 +50,7 @@ class VaultNoteController extends Controller
      * */
     public function restoreDeleted(Request $request)
     {
-        error_log("Entered notes restoration request. -----POST notes restore request");
+        error_log("POST NOTES RESTORE REQUEST ---> Entered the request");
         $validator = Validator::make($request->all(), [
             '*.title' => 'bail|nullable|string|max:30',
             '*.text' => 'bail|required|string|max:10000',
@@ -90,27 +92,75 @@ class VaultNoteController extends Controller
                 ]);
             }, $input
         );
-        error_log("Cleaned up input array. -----POST notes restore request");
+        error_log("POST NOTES RESTORE REQUEST ---> Cleaned up input");
         $restorationDate = Carbon::now();
         $restorationDatePlusOne = Carbon::now()->addSecond();
         if (!VaultNote::insert($input)) {
             error_log("Failed to insert");
             return response()->json(['error' => "Failed to insert"], 400);
         }
+        //TODO: Come back to it, since this is a pretty sketchy way of doing it.
+        //  Maybe send over the notes with the ids and then get them
         $restoredVaultNotes = VaultNote::where('user_id', '=', Auth::id())
             ->whereBetween('created_at', [$restorationDate, $restorationDatePlusOne])
             ->get();
-        error_log("Got notes that were deleted. -----POST notes restore request");
+
+        error_log("POST NOTES RESTORE REQUEST ---> Got deleted items");
         Log::channel("info_channel")->info("restoredNotes", $restoredVaultNotes->toArray());
-        $restoredVaultNotesFixed = array_map(
+
+        $restoredVaultNotesSterilized = array_map(
             function ($vaultNotes) {
                 return array_diff_key($vaultNotes,
                     array_flip($this->blacklist)
                 );
             }, $restoredVaultNotes->toArray()
         );
-        error_log("Ready to send back the deleted notes only. -----POST notes store request");
-        return response()->json($restoredVaultNotesFixed, 201);
+        error_log("POST NOTES RESTORE REQUEST ---> Sterilized items. Returning...");
+        return response()->json($restoredVaultNotesSterilized, 201);
+    }
+
+    public function storeSingle(Request $request)
+    {
+        error_log("POST SINGLE NOTE REQUEST ---> Enteted the request");
+        $validator = Validator::make($request->all(), [
+            'title' => 'bail|nullable|string|max:30',
+            'text' => 'bail|required|string|max:10000',
+            'color' => ['bail', 'string', 'max:10', 'required',
+                'regex:/^(\#[\da-f]{3}|\#[\da-f]{6})$/',
+            ],
+            'font_size' => 'bail|integer|max:22|min:12|required',
+            'created_at_device' => 'bail|required|date_format:Y-m-d H:i:s',
+            'updated_at_device' => 'bail|required|date_format:Y-m-d H:i:s'
+        ]);
+
+        if ($validator->fails()) {
+            error_log($validator->errors()->all()[0]);
+            return response()->json(['error' => $validator->errors()->all()[0]], 400);
+        }
+        $input = $request->all();
+        Log::channel("info_channel")->info("Input before anything", $input);
+
+        /*
+         * Clean up input by removing everything that isn't in whitelist
+         * */
+        $input = array_intersect_key(
+            $input, array_flip($this->whitelist)
+        );
+        /*
+         * Add user id and ip address and timestamps.
+         * Even tho timestamps get added automatically when using create
+         * */
+        $input = array_merge($input, [
+            'user_id' => Auth::id(),
+            'ip_address' => $request->ip(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+        error_log("POST SINGLE NOTE REQUEST ---> Cleaned up input");
+
+        $noteId = VaultNote::create($input)->id;
+        error_log("POST SINGLE NOTE REQUEST ---> Inserted item. Got item ID. Returning...");
+        return response()->json($noteId, 201);
     }
 
     /**
@@ -121,7 +171,7 @@ class VaultNoteController extends Controller
      */
     public function store(Request $request)
     {
-        error_log("Entered the request. -----POST notes store request");
+        error_log("POST NOTES STORE REQUEST ---> Entered the request");
 //        Log::channel("info_channel")->info($request);
         $validator = Validator::make($request->all(), [
             '*.title' => 'bail|nullable|string|max:30',
@@ -164,28 +214,29 @@ class VaultNoteController extends Controller
                 ]);
             }, $input
         );
-        error_log("Cleaned up input array. -----POST notes store request");
+
+        error_log("POST NOTES STORE REQUEST ---> Cleaned up input");
         Log::channel("info_channel")->info("INPUT :", $input);
         if (!VaultNote::insert($input)) {
-            error_log("Failed to insert");
+            error_log("POST NOTES STORE REQUEST ---> Failed to insert");
             return response()->json(['error' => "Failed to insert"], 400);
         }
-        error_log("Inserted notes. -----POST notes store request");
+        error_log("POST NOTES STORE REQUEST ---> Inserted items");
         /*
          * In order to achieve complete synchronization with the server with only one request
          * after inserting the notes, the server returns all of them as a response
          * */
         $vaultNotes = VaultNote::where('user_id', '=', Auth::id())->get();
         Log::channel("info_channel")->info("Notes :", $vaultNotes->toArray());
-        $vaultNotesFixed = array_map(
+        $vaultNotesSterilized = array_map(
             function ($vaultNotes) {
                 return array_diff_key($vaultNotes,
                     array_flip($this->blacklist)
                 );
             }, $vaultNotes->toArray()
         );
-        error_log("Got new notes ready to send. -----POST notes store request");
-        return response()->json($vaultNotesFixed, 201);
+        error_log("POST NOTES STORE REQUEST ---> Got and sterilized items. Returning...");
+        return response()->json($vaultNotesSterilized, 201);
     }
 
     /**
@@ -244,7 +295,7 @@ class VaultNoteController extends Controller
      */
     public function destroy(Request $request)
     {
-        error_log("Entered the request. -----DELETE notes request");
+        error_log("DELETE NOTES REQUEST ---> Entered the request");
         $validator = Validator::make($request->all(), [
             "*" => 'bail|integer|min:0'               // [40, 50]
         ]);
@@ -255,7 +306,7 @@ class VaultNoteController extends Controller
         $input = $request->all();
         VaultNote::where('user_id', '=', Auth::id())
             ->whereIn('id', $input)->delete();
-        error_log("Notes deleted. -----DELETE notes request");
+        error_log("DELETE NOTES REQUEST ---> Deleted items. Returning...");
 
         return response()->json(['success' => 'Records deleted'], 200);
     }

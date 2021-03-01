@@ -35,6 +35,7 @@ Route::group(['middleware' => 'auth:api', 'throttle:30,1'], function () {
     Route::apiResource('passwords', 'Api\VaultPasswordController');
     Route::delete('notes/delete', 'Api\VaultNoteController@destroy')->name('notes.destroy');
     Route::post('notes/recover', 'Api\VaultNoteController@restoreDeleted')->name('notes.recover');
+    Route::post('notes/singular', 'Api\VaultNoteController@storeSingle')->name('notes.store.singular');
     Route::apiResource('notes', 'Api\VaultNoteController', [
         'except' => 'destroy'
     ]);

@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Throwable;
 
 class AuthController extends Controller
 {
@@ -37,6 +36,7 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        error_log("POST LOGIN REQUEST ---> Entered the request");
         $validator = Validator::make($request->only('email', 'password'), [
             'email' => 'bail|required|string|email|max:255',
             'password' => 'bail|required|string'
@@ -54,10 +54,12 @@ class AuthController extends Controller
                 if (($user->oAuthAccessToken->expires_at > now()
                         && $user->oAuthAccessToken->revoked == false)
                     && $user->login_session_id != null) {
+                    error_log("POST LOGIN REQUEST ---> Currently logged in. Returning...");
                     return response()->json(['error' => 'Currently logged in'], 400);
                 } else if ($user->login_session_id != null
                     && ($user->oAuthAccessToken->expires_at < now()
                         || $user->oAuthAccessToken->revoked == true)) {
+                    error_log("POST LOGIN REQUEST ---> Got new token. Returning...");
                     $success['token'] = $user->createToken('VaultSec-token')->accessToken;
                     return response()->json(['success' => $success], 200);
                 } else if ($user->login_session_id == null
@@ -72,6 +74,7 @@ class AuthController extends Controller
                     $loginSession->save();
                     $user->login_session_id = $loginSession->id;
                     $user->save();
+                    error_log("POST LOGIN REQUEST ---> Logged in. Returning...");
 
                     $success['success'] = "Successfully logged in";
                     return response()->json(['success' => $success], 200);
@@ -110,6 +113,7 @@ class AuthController extends Controller
                 return response()->json(['success' => $success], 200);
             }
         } else {
+            error_log("POST LOGIN REQUEST ---> User not identified");
             return response()->json(['error' => 'Unauthorized'], 400);
         }
     }
@@ -121,25 +125,21 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        error_log("Entered the request. -----POST register request");
-        try {
-            $validator = Validator::make($request->all(), [
-                'first_name' => 'bail|required|string|max:30|regex:/^[A-Z][a-zA-Z]+$/',
-                'last_name' => 'bail|required|string|max:30|regex:/\b([A-Z][-,a-z. \']+[ ]*)+/',
-                'email' => 'bail|required|string|email|max:255|unique:users',
-                'password' => ['bail', 'required', 'string',
-                    'size:64', 'regex:/^[\s\da-f0-9]*$/',
-                    'confirmed'],
+        error_log("POST REGISTER REQUEST ---> Entered the request");
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'bail|required|string|max:30|regex:/^[A-Z][a-zA-Z]+$/',
+            'last_name' => 'bail|required|string|max:30|regex:/\b([A-Z][-,a-z. \']+[ ]*)+/',
+            'email' => 'bail|required|string|email|max:255|unique:users',
+            'password' => ['bail', 'required', 'string',
+                'size:64', 'regex:/^[\s\da-f0-9]*$/',
+                'confirmed'],
 //            'password' => ['bail', 'required', 'string',
 //                'min:30', 'max:66', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/',
 //                'confirmed'],
-                'ip_address' => 'bail|nullable|string|ip',
-            ]);
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()->all()[0]], 400);
-            }
-        } catch (Throwable $exception) {
-            report($exception);
+            'ip_address' => 'bail|nullable|string|ip',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->all()[0]], 400);
         }
 
         $input = $request->all();
@@ -147,7 +147,7 @@ class AuthController extends Controller
         $input['password'] = bcrypt($input['password']);
         $user = User::create($this->setLocationData($input));
 
-        error_log("Created a user. -----POST register request");
+        error_log("POST REGISTER REQUEST ---> Created user. Returning...");
         // User should only receive the access token on Login
 //        $success['token'] = $user->createToken('VaultSec-token')->accessToken;
         return response()->json(['success' => "Account created successfully"], 200);
@@ -158,19 +158,19 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        error_log("Entered the request. -----POST logout request");
+        error_log("POST LOGOUT REQUEST ---> Entered the request");
         $user = Auth::user();
         $user->token()->revoke();
-        error_log("Revoked the token. -----POST logout request");
+        error_log("POST LOGOUT REQUEST ---> Revoked the token");
         $user->login_session_id = null;
-        error_log("Nullified the login session. -----POST logout request");
+        error_log("POST LOGOUT REQUEST ---> Nullified the login session");
         $user->save();
 
         DB::table('login_sessions')
             ->where('user_id', '=', $user->id)
             ->where('currently_active', '=', true)
             ->update(['currently_active' => false]);
-        error_log("Set not currently active. -----POST logout request");
+        error_log("POST LOGOUT REQUEST ---> Logged out. Returning...");
         return response()->json(['success' => 'Logged out'], 200);
     }
 }
