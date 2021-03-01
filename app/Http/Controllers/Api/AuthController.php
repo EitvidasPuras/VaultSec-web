@@ -37,11 +37,6 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-//        if ($this->hasTooManyLoginAttempts($request)) {
-//            $this->fireLockoutEvent($request);
-//
-//            return $this->sendLockoutResponse($request);
-//        }
         $validator = Validator::make($request->only('email', 'password'), [
             'email' => 'bail|required|string|email|max:255',
             'password' => 'bail|required|string'

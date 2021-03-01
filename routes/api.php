@@ -15,10 +15,8 @@ use Illuminate\Support\Facades\Route;
 
 //header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept');
 
-Route::post('/login', ['before' => 'throttle:5,1', 'uses' => 'Api\AuthController@login'])
-    ->name('login');
-//Route::post('/login', 'Api\AuthController@login')->name('login');
-Route::post('/register', 'Api\AuthController@register')->name('register');
+Route::post('/login', 'Api\AuthController@login')->middleware('throttle:7,1')->name('login');
+Route::post('/register', 'Api\AuthController@register')->middleware('throttle:7,1')->name('register');
 
 Route::group(['middleware' => ['auth:api', 'is_admin']], function () {
     Route::get('/admin/users', 'Api\UserController@allUsers');
@@ -31,7 +29,7 @@ Route::group(['middleware' => ['auth:api', 'is_admin']], function () {
     // --------------------------------------------------------------
 });
 
-Route::group(['middleware' => 'auth:api'], function () {
+Route::group(['middleware' => 'auth:api', 'throttle:30,1'], function () {
     Route::post('/logout', 'Api\AuthController@logout')->name('logout');
     Route::get('/user', 'Api\UserController@userInformation');
     Route::apiResource('passwords', 'Api\VaultPasswordController');

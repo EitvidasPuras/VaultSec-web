@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use PhpOption\None;
 
 class VaultNoteController extends Controller
 {
@@ -47,7 +46,8 @@ class VaultNoteController extends Controller
      * that were deleted, instead of returning all of them, deleting them all in the mobile app and inserting them.
      * Now, the app only has to insert the deleted notes and be done with it
      * */
-    public function restoreDeleted(Request $request) {
+    public function restoreDeleted(Request $request)
+    {
         error_log("Entered notes restoration request. -----POST notes restore request");
         $validator = Validator::make($request->all(), [
             '*.title' => 'bail|nullable|string|max:30',
@@ -253,7 +253,7 @@ class VaultNoteController extends Controller
     {
         error_log("Entered the request. -----DELETE notes request");
         $validator = Validator::make($request->all(), [
-           "*" => 'bail|integer|min:0'               // [40, 50]
+            "*" => 'bail|integer|min:0'               // [40, 50]
         ]);
         if ($validator->fails()) {
             error_log($validator->errors()->all()[0]);
