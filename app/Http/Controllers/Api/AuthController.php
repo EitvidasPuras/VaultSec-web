@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -42,7 +43,7 @@ class AuthController extends Controller
 //            return $this->sendLockoutResponse($request);
 //        }
         $validator = Validator::make($request->only('email', 'password'), [
-            'email' => 'bail|required|string',
+            'email' => 'bail|required|string|email|max:255',
             'password' => 'bail|required|string'
         ]);
 
@@ -77,7 +78,8 @@ class AuthController extends Controller
                     $user->login_session_id = $loginSession->id;
                     $user->save();
 
-                    return response()->json(['success' => 'Successfully logged in'], 200);
+                    $success['success'] = "Successfully logged in";
+                    return response()->json(['success' => $success], 200);
                 } else if ($user->login_session_id == null
                     && ($user->oAuthAccessToken->expires_at < now()
                         || $user->oAuthAccessToken->revoked == true)) {
@@ -98,20 +100,20 @@ class AuthController extends Controller
             // The lines below are in case the authToken is deleted and user session is set to 0
             // These are commented out, because this case should never happen in app's lifecycle
             // Check logout function for the logic
-//            else {
-//                $loginSessionInfo = [
-//                    'user_id' => $user->id,
-//                    'ip_address' => $request->ip(),
-//                    'currently_active' => true
-//                ];
-//                $loginSession = new LoginSession($this->setLocationData($loginSessionInfo));
-//                $loginSession->save();
-//                $user->login_session_id = $loginSession->id;
-//                $user->save();
-//
-//                $success['token'] = $user->createToken('VaultSec-token')->accessToken;
-//                return response()->json(['success' => $success], 200);
-//            }
+            else {
+                $loginSessionInfo = [
+                    'user_id' => $user->id,
+                    'ip_address' => $request->ip(),
+                    'currently_active' => true
+                ];
+                $loginSession = new LoginSession($this->setLocationData($loginSessionInfo));
+                $loginSession->save();
+                $user->login_session_id = $loginSession->id;
+                $user->save();
+
+                $success['token'] = $user->createToken('VaultSec-token')->accessToken;
+                return response()->json(['success' => $success], 200);
+            }
         } else {
             return response()->json(['error' => 'Unauthorized'], 400);
         }
@@ -124,17 +126,25 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'bail|required|string|max:30|regex:/^[a-zA-Z]+$/',
-            'last_name' => 'bail|required|string|max:30|regex:/^[a-zA-Z]+$/',
-            'email' => 'bail|required|string|email|max:255|unique:users',
-            'password' => ['bail', 'required', 'string',
-                'min:10', 'max:512', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/',
-                'confirmed'],
-            'ip_address' => 'bail|nullable|string|ip',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->all()[0]], 400);
+        error_log("Entered the request. -----POST register request");
+        try {
+            $validator = Validator::make($request->all(), [
+                'first_name' => 'bail|required|string|max:30|regex:/^[A-Z][a-zA-Z]+$/',
+                'last_name' => 'bail|required|string|max:30|regex:/\b([A-Z][-,a-z. \']+[ ]*)+/',
+                'email' => 'bail|required|string|email|max:255|unique:users',
+                'password' => ['bail', 'required', 'string',
+                    'size:64', 'regex:/^[\s\da-f0-9]*$/',
+                    'confirmed'],
+//            'password' => ['bail', 'required', 'string',
+//                'min:30', 'max:66', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/',
+//                'confirmed'],
+                'ip_address' => 'bail|nullable|string|ip',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->all()[0]], 400);
+            }
+        } catch (Throwable $exception) {
+            report($exception);
         }
 
         $input = $request->all();
@@ -142,8 +152,10 @@ class AuthController extends Controller
         $input['password'] = bcrypt($input['password']);
         $user = User::create($this->setLocationData($input));
 
-        $success['token'] = $user->createToken('VaultSec-token')->accessToken;
-        return response()->json(['success' => $success], 200);
+        error_log("Created a user. -----POST register request");
+        // User should only receive the access token on Login
+//        $success['token'] = $user->createToken('VaultSec-token')->accessToken;
+        return response()->json(['success' => "Account created successfully"], 200);
     }
 
     /*
@@ -151,16 +163,19 @@ class AuthController extends Controller
      */
     public function logout()
     {
+        error_log("Entered the request. -----POST logout request");
         $user = Auth::user();
-        $user->oAuthAccessToken->revoked = 1;
-        $user->oAuthAccessToken->save();
+        $user->token()->revoke();
+        error_log("Revoked the token. -----POST logout request");
         $user->login_session_id = null;
+        error_log("Nullified the login session. -----POST logout request");
         $user->save();
 
         DB::table('login_sessions')
             ->where('user_id', '=', $user->id)
             ->where('currently_active', '=', true)
             ->update(['currently_active' => false]);
+        error_log("Set not currently active. -----POST logout request");
         return response()->json(['success' => 'Logged out'], 200);
     }
 }

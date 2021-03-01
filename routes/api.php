@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+//header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept');
+
 Route::post('/login', ['before' => 'throttle:5,1', 'uses' => 'Api\AuthController@login'])
     ->name('login');
 //Route::post('/login', 'Api\AuthController@login')->name('login');
@@ -33,7 +35,11 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/logout', 'Api\AuthController@logout')->name('logout');
     Route::get('/user', 'Api\UserController@userInformation');
     Route::apiResource('passwords', 'Api\VaultPasswordController');
-    Route::apiResource('notes', 'Api\VaultNoteController');
+    Route::delete('notes/delete', 'Api\VaultNoteController@destroy')->name('notes.destroy');
+    Route::post('notes/recover', 'Api\VaultNoteController@restoreDeleted')->name('notes.recover');
+    Route::apiResource('notes', 'Api\VaultNoteController', [
+        'except' => 'destroy'
+    ]);
     Route::apiResource('files', 'Api\VaultFileController');
     Route::get('the_vault', 'Api\VaultController@index');
 });
