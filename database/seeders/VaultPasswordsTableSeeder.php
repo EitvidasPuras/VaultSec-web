@@ -1,12 +1,14 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\VaultPassword;
 use Illuminate\Database\Seeder;
 
 class VaultPasswordsTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeders.
      *
      * @return void
      */

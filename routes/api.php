@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', 'Api\AuthController@login')->middleware('throttle:7,1')->name('login');
 Route::post('/register', 'Api\AuthController@register')->middleware('throttle:7,1')->name('register');
 
+/*
+ * Admin subsystem will probably only be available on the web, not on the android app
+ * */
 Route::group(['middleware' => ['auth:api', 'is_admin']], function () {
     Route::get('/admin/users', 'Api\UserController@allUsers');
     Route::get('/admin/passwords', 'Api\VaultPasswordController@indexAdmin');
@@ -37,7 +40,7 @@ Route::group(['middleware' => 'auth:api', 'throttle:30,1'], function () {
     Route::post('notes/recover', 'Api\VaultNoteController@restoreDeleted')->name('notes.recover');
     Route::post('notes/singular', 'Api\VaultNoteController@storeSingle')->name('notes.store.singular');
     Route::apiResource('notes', 'Api\VaultNoteController', [
-        'except' => 'destroy'
+        'except' => ['destroy', 'show']
     ]);
     Route::apiResource('files', 'Api\VaultFileController');
     Route::get('the_vault', 'Api\VaultController@index');
