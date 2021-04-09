@@ -66,7 +66,7 @@ class VaultNoteController extends Controller
     {
         return Validator::make($request->only($this->whitelist), [
             'id' => 'bail|required|integer',
-            'title' => 'bail|nullable|string|max:30',
+            'title' => 'bail|nullable|string|max:500',
             'text' => 'bail|required|string|max:10000',
             'color' => ['bail', 'string', 'max:10', 'required',
                 'regex:/^(\#[\da-f]{3}|\#[\da-f]{6})$/',
@@ -81,7 +81,7 @@ class VaultNoteController extends Controller
     {
         return Validator::make($request->only($this->whitelist), [
             '*.id' => 'bail|required|integer',
-            '*.title' => 'bail|nullable|string|max:30',
+            '*.title' => 'bail|nullable|string|max:500',
             '*.text' => 'bail|required|string|max:10000',
             '*.color' => ['bail', 'string', 'max:10', 'required',
                 'regex:/^(\#[\da-f]{3}|\#[\da-f]{6})$/',
