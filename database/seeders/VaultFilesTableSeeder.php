@@ -14,19 +14,18 @@ class VaultFilesTableSeeder extends Seeder
      */
     public function run()
     {
-        $data = [
-            'user_id' => 2,
-            'file_name' => 'example',
-            'stored_file_name' => 'example',
-            'file_extension' => '.txt',
-            'file_size' => 175,
-            'file_size_v' => 175,
-            'ip_address' => '127.0.0.1',
-            'currently_shared' => false
-        ];
-
-        $vaultNote = VaultFile::create($data);
-        $vaultNote->save();
-
+//        $data = [
+//            'user_id' => 2,
+//            'file_name' => 'example',
+//            'stored_file_name' => 'example',
+//            'file_extension' => '.txt',
+//            'file_size' => 175,
+//            'file_size_v' => 175,
+//            'ip_address' => '127.0.0.1',
+//            'currently_shared' => false
+//        ];
+//
+//        $vaultNote = VaultFile::create($data);
+//        $vaultNote->save();
     }
 }

@@ -16,13 +16,16 @@ class CreateVaultPasswordsTable extends Migration
         Schema::create('vault_passwords', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->string('title')->unique();
-            $table->string('website_name');
-            $table->string('login');
-            $table->string('password');
+            $table->string('title', 500)->default(null)->nullable();
+            $table->string('url', 500)->default(null)->nullable();
+            $table->string('login', 3000)->default(null)->nullable();
+            $table->string('password', 10000);
             $table->string('category')->default('Unassigned');
+            $table->string('color')->default('#ffffff');
             $table->string('ip_address');
             $table->boolean('currently_shared')->default(false);
+            $table->timestamp('created_at_device')->default(now());
+            $table->timestamp('updated_at_device')->default(now());
             $table->timestamps();
         });
     }

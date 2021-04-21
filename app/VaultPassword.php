@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class VaultPassword extends Model
 {
     protected $fillable = [
-        'user_id', 'title', 'website_name', 'login', 'password',
-        'category', 'ip_address', 'currently_shared'];
+        'user_id', 'title', 'url', 'login', 'password',
+        'category', 'color', 'ip_address', 'currently_shared', 'created_at_device', 'updated_at_device'];
 
     public function user()
     {
