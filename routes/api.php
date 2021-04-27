@@ -26,7 +26,6 @@ Route::group(['middleware' => ['auth:api', 'is_admin']], function () {
     Route::get('/admin/passwords', 'Api\VaultPasswordController@indexAdmin');
     Route::get('/admin/notes', 'Api\VaultNoteController@indexAdmin');
     Route::get('/admin/active', 'Api\UserController@currentlyActiveUsers');
-    Route::get('/admin/files', 'Api\VaultFileController@indexAdmin');
     // ------------ For test purposes and future features -----------
     Route::get('/admin/random', 'Api\UserController@getRandom');
     // --------------------------------------------------------------
@@ -53,6 +52,14 @@ Route::group(['middleware' => 'auth:api', 'throttle:30,1'], function () {
         'except' => ['destroy', 'show']
     ]);
     /* ----- NOTES ----- */
-    Route::apiResource('files', 'Api\VaultFileController');
+    /* ----- CARDS ----- */
+    Route::delete('cards/delete', 'Api\VaultPaymentCardController@destroy')->name('cards.destroy');
+    Route::post('cards/recover', 'Api\VaultPaymentCardController@restoreDeleted')->name('cards.recover');
+    Route::post('cards/singular', 'Api\VaultPaymentCardController@storeSingle')->name('cards.store.singular');
+    Route::apiResource('cards', 'Api\VaultPaymentCardController', [
+        'except' => ['destroy', 'show']
+    ]);
+    /* ----- CARDS ----- */
+
     Route::get('the_vault', 'Api\VaultController@index');
 });

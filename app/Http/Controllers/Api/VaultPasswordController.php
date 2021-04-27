@@ -209,7 +209,7 @@ class VaultPasswordController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Log::channel('stderr')->info("PUT UPDATE PASSWORD REQUEST ---> Enteted the request");
+        Log::channel('stderr')->info("PUT UPDATE PASSWORD REQUEST ---> Entered the request");
 
         $validator = $this->validatorForASingleObject($request);
         if ($validator->fails()) {

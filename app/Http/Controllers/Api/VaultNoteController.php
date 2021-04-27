@@ -238,7 +238,7 @@ class VaultNoteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Log::channel('stderr')->info("PUT UPDATE NOTE REQUEST ---> Enteted the request");
+        Log::channel('stderr')->info("PUT UPDATE NOTE REQUEST ---> Entered the request");
 
         $validator = $this->validatorForASingleObject($request);
         if ($validator->fails()) {
