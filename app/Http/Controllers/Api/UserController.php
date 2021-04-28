@@ -30,8 +30,8 @@ class UserController extends Controller
 
     public function currentlyActiveUsers()
     {
-        $users = User::whereNotNull('login_session_id')->get();
-        return response()->json(['success' => $users], 200);
+//        $users = User::whereNotNull('login_session_id')->get();
+//        return response()->json(['success' => $users], 200);
     }
 
     public function getRandom()

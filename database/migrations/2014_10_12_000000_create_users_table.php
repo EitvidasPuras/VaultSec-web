@@ -27,7 +27,6 @@ class CreateUsersTable extends Migration
             $table->string('postal_code')->nullable();
             $table->double('latitude')->nullable();
             $table->double('longitude')->nullable();
-            $table->foreignId('login_session_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

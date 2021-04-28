@@ -22,7 +22,6 @@ use Laravel\Passport\HasApiTokens;
  * @property string|null $postal_code
  * @property float|null $latitude
  * @property float|null $longitude
- * @property int|null $login_session_id
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

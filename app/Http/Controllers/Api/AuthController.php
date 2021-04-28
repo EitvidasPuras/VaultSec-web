@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\LoginSession;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -43,10 +44,10 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
 
-            if ($user->login_session_id != null) {
-                Log::channel('stderr')->info("POST LOGIN REQUEST ---> Currently logged in. Returning...");
-                return response()->json(['error' => 'Currently logged in'], 400);
-            }
+//            if ($user->login_session_id != null) {
+//                Log::channel('stderr')->info("POST LOGIN REQUEST ---> Currently logged in. Returning...");
+//                return response()->json(['error' => 'Currently logged in'], 400);
+//            }
 
             $loginSessionInfo = [
                 'user_id' => $user->id,
@@ -55,8 +56,6 @@ class AuthController extends Controller
             ];
             $loginSession = new LoginSession($this->setLocationData($loginSessionInfo));
             $loginSession->save();
-            $user->login_session_id = $loginSession->id;
-            $user->save();
 
             $success['token'] = $user->createToken('VaultSec-token')->accessToken;
             Log::channel('stderr')->info("POST LOGIN REQUEST ---> Token created. Returning...");
@@ -171,13 +170,14 @@ class AuthController extends Controller
         $user = Auth::user();
         $user->token()->revoke();
         Log::channel('stderr')->info("POST LOGOUT REQUEST ---> Revoked the token");
-        $user->login_session_id = null;
-        Log::channel('stderr')->info("POST LOGOUT REQUEST ---> Nullified the login session");
         $user->save();
 
+        $time = Carbon::parse($user->token()->getAttributeValue('created_at'));
+        $timePlusOne = Carbon::parse($user->token()->getAttributeValue('created_at'))->addSecond();
         DB::table('login_sessions')
             ->where('user_id', '=', $user->id)
             ->where('currently_active', '=', true)
+            ->whereBetween('created_at', [$time, $timePlusOne])
             ->update(['currently_active' => false]);
 
         Log::channel('stderr')->info("POST LOGOUT REQUEST ---> Logged out. Returning...");
