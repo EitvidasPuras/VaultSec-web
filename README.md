@@ -1,1 +1,1 @@
-## VaultSec password manager
+## VaultSec sensitive data manager
