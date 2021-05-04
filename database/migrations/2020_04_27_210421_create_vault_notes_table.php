@@ -15,7 +15,7 @@ class CreateVaultNotesTable extends Migration
     {
         Schema::create('vault_notes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('user_id')->constrained();
             $table->string('title', 500)->default(null)->nullable();
             $table->string('text', 10000);
             $table->string('color')->default('#ffffff');

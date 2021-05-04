@@ -15,7 +15,7 @@ class CreateVaultPaymentCardsTable extends Migration
     {
         Schema::create('vault_payment_cards', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('user_id')->constrained();
             $table->string('title', 1000)->nullable()->default(null);
             $table->string('card_number', 500);
             $table->string('expiration_mm', 400);
@@ -29,6 +29,7 @@ class CreateVaultPaymentCardsTable extends Migration
             $table->timestamp('updated_at_device')->default(now());
             $table->timestamps();
         });
+        Schema::enableForeignKeyConstraints();
     }
 
     /**

@@ -15,7 +15,7 @@ class CreateLoginSessionsTable extends Migration
     {
         Schema::create('login_sessions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('user_id')->constrained();
             $table->string('ip_address')->nullable();
             $table->string('country')->nullable();
             $table->string('city')->nullable();
